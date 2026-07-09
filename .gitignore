@@ -1,0 +1,29 @@
+# ===========================================================================
+#  .gitignore  -  a list of files/folders Git should IGNORE (never upload).
+#  These are things that are re-generated on each machine and should not live
+#  in the shared repository.
+# ===========================================================================
+
+# --- Maven build output (compiled .class files, packaged .jar, etc.) -------
+target/
+
+# --- IntelliJ IDEA project files (personal to each developer's machine) ----
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# --- Other common editors / tools ------------------------------------------
+.vscode/
+.settings/
+.classpath
+.project
+build/
+
+# --- Operating-system clutter ----------------------------------------------
+.DS_Store
+Thumbs.db
+
+# --- Log files -------------------------------------------------------------
+*.log
