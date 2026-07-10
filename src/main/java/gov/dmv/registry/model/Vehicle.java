@@ -42,6 +42,15 @@ public class Vehicle {
 
     private String make;
     private String model;
+
+    /**
+     * The model year. NOTE: we must map this to a column NOT called "year",
+     * because YEAR is a reserved keyword in SQL/H2 - letting the database name
+     * the column "year" makes the generated CREATE TABLE statement a syntax
+     * error. @Column(name = ...) renames just the database column; our Java
+     * field stays the natural "year". (A classic gotcha worth remembering.)
+     */
+    @Column(name = "model_year", nullable = false)
     private int year;
 
     /**
