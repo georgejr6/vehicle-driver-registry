@@ -1,0 +1,44 @@
+# ===========================================================================
+#  Continuous Integration (CI) workflow for GitHub Actions.
+#
+#  WHAT THIS DOES: every time we push code (or open a pull request), GitHub
+#  spins up a fresh Linux machine, installs Java 21, and BUILDS + TESTS our
+#  project. If anything fails to compile or a test breaks, GitHub marks the
+#  commit with a red X and emails us. This is how professional teams catch
+#  mistakes automatically, on every change - nobody has to remember to run it.
+#
+#  The file lives at .github/workflows/ci.yml (GitHub looks here by convention).
+# ===========================================================================
+
+name: build
+
+# WHEN to run: on pushes and pull requests targeting the main branch.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    # The type of virtual machine to run on.
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out (download) our repository's code onto the runner.
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      # 2. Install the Java 21 Development Kit (Temurin distribution) and turn
+      #    on Maven dependency caching so repeat builds are fast.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 3. Compile the code and run all tests. "-B" = batch/non-interactive mode.
+      #    'verify' compiles, runs tests, and packages - failing on any error.
+      - name: Build and test with Maven
+        run: mvn -B verify

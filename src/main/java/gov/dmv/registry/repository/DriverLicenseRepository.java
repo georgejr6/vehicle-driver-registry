@@ -1,26 +1,18 @@
 package gov.dmv.registry.repository;
 
 import gov.dmv.registry.model.DriverLicense;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
- * The filing cabinet for driver licenses.
+ * Storage for driver licenses (Spring Data JPA).
  *
- * Design note: in this first version we assume a person holds at most ONE
- * license, so {@code findByHolderId} returns a single Optional. If that rule
- * ever changes, this is the one place we would revisit.
+ * Because a person holds at most one license, the look-up by holder returns an
+ * {@link Optional} (zero or one), not a list.
  */
-public interface DriverLicenseRepository {
+public interface DriverLicenseRepository extends JpaRepository<DriverLicense, Long> {
 
-    DriverLicense save(DriverLicense license);
-
-    Optional<DriverLicense> findByNumber(String number);
-
-    Optional<DriverLicense> findByHolderId(String holderId);
-
-    List<DriverLicense> findAll();
-
-    long count();
+    /** The license held by the person with this id, if any. */
+    Optional<DriverLicense> findByHolderId(Long holderId);
 }

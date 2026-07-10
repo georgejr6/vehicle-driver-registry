@@ -1,108 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ============================================================================
-   pom.xml  =  "Project Object Model"
+   pom.xml  =  "Project Object Model"  (the recipe card for the whole build)
   ============================================================================
-  This single file is the HEART of any Maven project. Maven reads it to learn:
-     * what this project is called (its "coordinates")
-     * which version of Java to compile with
-     * which external libraries (dependencies) we need
-     * which build tools (plugins) to run
+  Maven reads this file to know what the project is, which Java version to use,
+  and which libraries to download. IntelliJ reads it too and configures itself.
 
-  Think of it as the "recipe card" for the whole build. When your teammate
-  opens this folder in IntelliJ, IntelliJ finds this file, reads it, and
-  automatically sets everything up. You almost never build Java "by hand" in
-  a real job - the pom.xml + Maven do it for you.
+  This is now a SPRING BOOT project. Spring Boot is the framework used across
+  the enterprise/government world to build Java web applications. It gives us:
+    * an embedded web server (Tomcat) - so the app IS the server; just run it
+    * automatic wiring of our components ("dependency injection")
+    * easy database access (Spring Data JPA)
+    * server-rendered HTML pages (Thymeleaf)
   ============================================================================
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <!-- The version of the POM file format itself. For modern Maven this is
-         ALWAYS 4.0.0 - just leave it. -->
     <modelVersion>4.0.0</modelVersion>
 
     <!-- ------------------------------------------------------------------ -->
-    <!-- COORDINATES: these three tags uniquely identify our project in the -->
-    <!-- entire world of Java projects (like a mailing address).            -->
+    <!-- PARENT: we inherit from Spring Boot's "starter parent". This one    -->
+    <!-- line gives us sensible, TESTED versions for dozens of libraries so  -->
+    <!-- we don't have to pick version numbers ourselves. Below, most        -->
+    <!-- dependencies have no <version> - they are supplied by this parent.  -->
     <!-- ------------------------------------------------------------------ -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.0</version>
+        <relativePath/> <!-- empty = look the parent up from the internet -->
+    </parent>
 
-    <!-- groupId  = the organisation / namespace. Convention is a reversed
-         domain name. We pretend to be a DMV (Department of Motor Vehicles). -->
+    <!-- Our project's own coordinates (address in the world of Java apps). -->
     <groupId>gov.dmv</groupId>
-
-    <!-- artifactId = the project's own name (becomes the .jar file name). -->
     <artifactId>vehicle-driver-registry</artifactId>
-
-    <!-- version = which release this is. "SNAPSHOT" means "still in active
-         development, not a finished release". 0.1.0 = our very first slice. -->
-    <version>0.1.0-SNAPSHOT</version>
-
-    <!-- packaging = what we produce. "jar" = a single runnable Java archive. -->
+    <version>0.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <!-- Human-friendly name & description (shown in tools). "&amp;" is just
-         how you write the "&" character inside XML. -->
     <name>Vehicle &amp; Driver Registry</name>
-    <description>A learning-focused, government-style DMV portal. Starts as a
-        plain-Java layered app and will grow into a full web system.</description>
+    <description>A government-style DMV web portal over a database, built to
+        learn Java + Spring Boot by growing a realistic system.</description>
 
-    <!-- ------------------------------------------------------------------ -->
-    <!-- PROPERTIES: reusable settings. Define once, reference elsewhere      -->
-    <!-- with ${...}. Keeps versions in one place so upgrades are easy.       -->
-    <!-- ------------------------------------------------------------------ -->
     <properties>
-        <!-- Compile against Java 17 (a "Long Term Support" release that is
-             widely installed and stable). If your JDK is newer (21, etc.),
-             this still works. If IntelliJ complains, change 17 to match your
-             installed JDK. -->
-        <maven.compiler.release>17</maven.compiler.release>
-
-        <!-- Read/write source files as UTF-8 so accented characters etc. work
-             the same on every machine. -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- We keep the JUnit (testing library) version here so we only ever
-             change it in one spot. -->
-        <junit.version>5.10.2</junit.version>
+        <!-- Compile and run on Java 21 (matches the installed JDK). -->
+        <java.version>21</java.version>
     </properties>
 
     <!-- ------------------------------------------------------------------ -->
-    <!-- DEPENDENCIES: external libraries our code needs. Maven downloads     -->
-    <!-- them automatically from the internet the first time you build.       -->
+    <!-- DEPENDENCIES: the libraries our app needs. "starters" are curated   -->
+    <!-- bundles - e.g. 'starter-web' pulls in the web server, JSON support, -->
+    <!-- and everything else needed to serve web requests, in one line.      -->
     <!-- ------------------------------------------------------------------ -->
     <dependencies>
-        <!-- JUnit 5 = the framework we use to write automated tests.
-             scope=test means "only needed when running tests, NOT shipped
-             with the real application". -->
+
+        <!-- Web layer: controllers, the embedded Tomcat server, HTTP. -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Thymeleaf: turns our HTML templates (with data mixed in) into the
+             finished web pages the browser shows. This is the "portal" UI. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!-- Spring Data JPA: lets us store/read Java objects in a real SQL
+             database with almost no hand-written storage code. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Bean Validation: enables @NotBlank / @Past style annotations for
+             rejecting bad input. Included ready for the richer form validation
+             on our roadmap (the current app validates inside the model/service). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- H2: a tiny SQL database that runs INSIDE our app - nothing to
+             install. Perfect for learning. runtime scope = needed when the app
+             runs, but our code never imports it directly. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Testing tools (JUnit 5, Spring test support). Only used for tests. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <!-- ------------------------------------------------------------------ -->
-    <!-- BUILD: the plugins (mini-tools) Maven runs during a build.           -->
-    <!-- ------------------------------------------------------------------ -->
     <build>
         <plugins>
-            <!-- Turns our .java source files into .class files the computer
-                 can run. -->
+            <!-- The Spring Boot plugin: lets you run the app with 'mvn
+                 spring-boot:run' and packages it into a single runnable jar
+                 that already contains the web server. -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-            </plugin>
-
-            <!-- Runs our JUnit tests automatically during the build and fails
-                 the build if any test fails. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

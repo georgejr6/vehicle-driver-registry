@@ -1,41 +1,27 @@
 package gov.dmv.registry.repository;
 
 import gov.dmv.registry.model.Person;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A "repository" is the layer responsible for STORING and RETRIEVING objects.
- * Think of it as the filing cabinet for one kind of thing - here, People.
+ * The storage layer for People - now powered by Spring Data JPA.
  *
- * WHY THIS IS AN INTERFACE (and not a class):
- * An interface lists WHAT operations exist without saying HOW they work. It is
- * a promise / a contract. Today we back it with a simple in-memory version
- * (data lives in the computer's memory and disappears when the app stops).
- * Later, when we "modernise", we can write a database-backed version that
- * fulfils the exact same contract - and NONE of our business code has to change,
- * because it only ever talks to this interface. This swap-ability is the single
- * most important idea in this whole project.
+ * THE BIG "MODERNIZE" MOMENT:
+ * Before, we had to hand-write an InMemoryPersonRepository with save/findById/
+ * findAll/etc. Now we simply DECLARE this interface and extend
+ * {@code JpaRepository<Person, Long>}. Spring generates a full, database-backed
+ * implementation at startup - we write ZERO storage code.
+ *
+ * The two type parameters mean: this repository stores {@link Person} objects
+ * whose primary key (id) is a {@link Long}.
+ *
+ * For free, we instantly get methods like:
+ *   save(person), findById(id), findAll(), deleteById(id), count(), and more.
+ *
+ * We can also add custom look-ups just by naming a method a certain way (Spring
+ * writes the query from the name) - see VehicleRepository for examples. Person
+ * needs none yet, so this interface stays empty. That is not laziness; it is the
+ * framework doing the boring work so we focus on the interesting rules.
  */
-public interface PersonRepository {
-
-    /** Store a new person (or update an existing one) and return it. */
-    Person save(Person person);
-
-    /**
-     * Look up a person by id. Returns an Optional - Java's official way of
-     * saying "maybe there's a Person here, maybe there isn't". It forces the
-     * caller to handle the "not found" case instead of crashing on null.
-     */
-    Optional<Person> findById(String id);
-
-    /** Return every person we know about (as a read-only-style list). */
-    List<Person> findAll();
-
-    /** Remove a person by id. Returns true if someone was actually removed. */
-    boolean deleteById(String id);
-
-    /** How many people are stored - handy for generating the next id. */
-    long count();
+public interface PersonRepository extends JpaRepository<Person, Long> {
 }

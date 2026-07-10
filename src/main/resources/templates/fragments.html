@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--
+  ==========================================================================
+   fragments.html  -  a LIBRARY of reusable page pieces ("fragments").
+  ==========================================================================
+  Instead of copying the same header, navigation bar, and message banners onto
+  every page, we define them ONCE here and pull them into each page with
+  Thymeleaf's th:replace. This is the "Don't Repeat Yourself" principle.
+
+  The xmlns:th=... below switches on Thymeleaf's special th:* attributes.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- HEAD fragment. It takes a parameter (pageTitle) so each page can set its
+     own browser-tab title while sharing the same meta tags and stylesheet. -->
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'DMV Registry · ' + ${pageTitle}">DMV Registry</title>
+    <!-- @{...} builds a correct URL to our stylesheet in static/css. -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<!-- NAV fragment: the top navigation bar shown on every page. -->
+<nav th:fragment="nav" class="nav">
+    <span class="brand">🚗 DMV Registry</span>
+    <div class="links">
+        <a th:href="@{/}">Dashboard</a>
+        <a th:href="@{/people}">People</a>
+        <a th:href="@{/vehicles}">Vehicles</a>
+        <a th:href="@{/licenses}">Licenses</a>
+        <a th:href="@{/h2-console}" target="_blank" title="Browse the raw database">DB&nbsp;console</a>
+    </div>
+</nav>
+
+<!-- FLASH fragment: shows a green success banner or a red error banner, but
+     ONLY when the controller actually set that message (th:if checks it). -->
+<div th:fragment="flash">
+    <div class="flash success" th:if="${message}" th:text="${message}"></div>
+    <div class="flash error" th:if="${error}" th:text="${error}"></div>
+</div>
+
+</body>
+</html>

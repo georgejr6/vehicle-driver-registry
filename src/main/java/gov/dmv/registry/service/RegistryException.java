@@ -1,23 +1,24 @@
 package gov.dmv.registry.service;
 
 /**
- * Our own custom error type, thrown when a DMV business RULE is broken - for
- * example, trying to register a vehicle to an owner who does not exist, or
- * issuing a license to someone too young to drive.
+ * Our own error type, thrown when a DMV business RULE is broken - for example,
+ * registering a vehicle to an owner who does not exist, or issuing a license to
+ * someone too young to drive.
  *
- * WHY MAKE OUR OWN EXCEPTION?
- * Java has many built-in error types, but a dedicated one makes our intent
- * clear and lets calling code catch specifically "a DMV rule was violated"
- * separately from unexpected programming bugs.
+ * WHY A CUSTOM EXCEPTION?
+ * A dedicated type makes our intent clear and lets calling code catch
+ * specifically "a DMV rule was violated" separately from unexpected bugs. Our
+ * web controller catches this and turns the message into a friendly red banner
+ * on the page instead of a stack-trace crash.
  *
- * It "extends RuntimeException", which makes it an "unchecked" exception - the
- * compiler does not force every caller to wrap calls in try/catch. That keeps
- * our happy-path code clean; we catch it deliberately where we want to (for
- * example, in the console menu, to show a friendly message instead of crashing).
+ * It "extends RuntimeException" (an "unchecked" exception), so the compiler does
+ * not force try/catch everywhere - keeping the happy-path code clean. Also note:
+ * throwing this inside a @Transactional service method makes Spring ROLL BACK
+ * the transaction, so a rejected action leaves the database unchanged.
  */
 public class RegistryException extends RuntimeException {
 
     public RegistryException(String message) {
-        super(message); // hand the explanation text up to the base class.
+        super(message);
     }
 }

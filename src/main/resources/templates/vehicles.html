@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--
+  vehicles.html  -  list vehicles, register a new one, and transfer ownership.
+  Model supplies: "vehicles", "people" (for owner dropdowns), "vehicleTypes".
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments :: head('Vehicles')}"></head>
+
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>Vehicles</h1>
+
+    <!-- ============ TABLE OF VEHICLES (+ per-row transfer) ============ -->
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>VIN</th>
+            <th>Make / Model</th>
+            <th>Year</th>
+            <th>Type</th>
+            <th>Owner</th>
+            <th>Transfer to</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="v : ${vehicles}">
+            <td th:text="${v.id}">1</td>
+            <td th:text="${v.vin}">VIN</td>
+            <td th:text="${v.make + ' ' + v.model}">Toyota Corolla</td>
+            <td th:text="${v.year}">2020</td>
+            <td th:text="${v.type}">CAR</td>
+            <!-- Because Vehicle has a @ManyToOne owner, we can reach right
+                 through to the owner's name. -->
+            <td th:text="${v.owner.fullName}">Owner</td>
+            <td>
+                <!-- A tiny form per row to transfer THIS vehicle. The action URL
+                     includes the vehicle's id, matching @PostMapping
+                     "/vehicles/{id}/transfer". -->
+                <form method="post" th:action="@{/vehicles/{id}/transfer(id=${v.id})}" class="inline">
+                    <select name="newOwnerId" required>
+                        <option th:each="p : ${people}"
+                                th:value="${p.id}" th:text="${p.fullName}">Person</option>
+                    </select>
+                    <button type="submit">Transfer</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${vehicles.isEmpty()}">
+            <td colspan="7" class="empty">No vehicles yet - add one below.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- ============ "REGISTER A VEHICLE" FORM ============ -->
+    <section class="panel">
+        <h2>Register a vehicle</h2>
+        <form method="post" th:action="@{/vehicles}" class="form-grid">
+            <label>Owner
+                <!-- Dropdown of existing people; the selected person's id is
+                     submitted as ownerId. -->
+                <select name="ownerId" required>
+                    <option th:each="p : ${people}"
+                            th:value="${p.id}" th:text="${p.fullName}">Person</option>
+                </select>
+            </label>
+            <label>VIN
+                <input type="text" name="vin" required>
+            </label>
+            <label>Make
+                <input type="text" name="make" required>
+            </label>
+            <label>Model
+                <input type="text" name="model" required>
+            </label>
+            <label>Year
+                <input type="number" name="year" min="1886" required>
+            </label>
+            <label>Type
+                <select name="type" required>
+                    <option th:each="t : ${vehicleTypes}"
+                            th:value="${t}" th:text="${t}">CAR</option>
+                </select>
+            </label>
+            <button type="submit">Register vehicle</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

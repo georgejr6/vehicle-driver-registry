@@ -27,3 +27,6 @@ Thumbs.db
 
 # --- Log files -------------------------------------------------------------
 *.log
+
+# --- Local H2 database files (only created if you switch to file-based H2) --
+/data/

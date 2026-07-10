@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+  licenses.html  -  list driver licenses, issue a new one, suspend an existing.
+  Model supplies: "licenses" and "people" (for the "issue to" dropdown).
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments :: head('Licenses')}"></head>
+
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>Driver Licenses</h1>
+
+    <!-- ============ TABLE OF LICENSES (+ per-row suspend) ============ -->
+    <table>
+        <thead>
+        <tr>
+            <th>Number</th>
+            <th>Holder</th>
+            <th>Issued</th>
+            <th>Expires</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="l : ${licenses}">
+            <td th:text="${l.licenseNumber}">DL-000001</td>
+            <td th:text="${l.holder.fullName}">Holder</td>
+            <td th:text="${l.issueDate}">2024-01-01</td>
+            <td th:text="${l.expiryDate}">2029-01-01</td>
+            <!-- The CSS class is chosen from the status text so ACTIVE looks
+                 green, SUSPENDED/REVOKED look red, etc. -->
+            <td>
+                <span class="badge" th:classappend="'badge-' + ${l.status}"
+                      th:text="${l.status}">ACTIVE</span>
+            </td>
+            <td>
+                <!-- Suspend only makes sense while the license is ACTIVE. -->
+                <form th:if="${l.status.name() == 'ACTIVE'}" method="post"
+                      th:action="@{/licenses/{id}/suspend(id=${l.id})}" class="inline">
+                    <button type="submit" class="danger">Suspend</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${licenses.isEmpty()}">
+            <td colspan="6" class="empty">No licenses yet - issue one below.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- ============ "ISSUE A LICENSE" FORM ============ -->
+    <section class="panel">
+        <h2>Issue a driver license</h2>
+        <p class="hint">The applicant must be at least 16 and may hold only one license.</p>
+        <form method="post" th:action="@{/licenses}" class="form-grid">
+            <label>Person
+                <select name="holderId" required>
+                    <option th:each="p : ${people}"
+                            th:value="${p.id}" th:text="${p.fullName}">Person</option>
+                </select>
+            </label>
+            <button type="submit">Issue license</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -1,46 +1,77 @@
 package gov.dmv.registry.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 import java.util.Objects;
 
 /**
- * A Vehicle registered with the DMV. Each vehicle is OWNED by exactly one
- * Person at a time.
+ * A Vehicle registered with the DMV.
  *
- * HOW WE LINK OBJECTS TOGETHER: notice we store {@code ownerId} (a String) and
- * NOT a whole Person object. In systems backed by a database this is how rows
- * reference each other - by id, like a foreign key. It keeps our objects small
- * and avoids tangled webs of objects pointing at each other. To get the actual
- * owner, code asks the repository: "give me the Person with this id".
+ * THE INTERESTING PART - A REAL RELATIONSHIP:
+ * A vehicle is owned by a Person. In the database this becomes a FOREIGN KEY:
+ * the vehicle row stores the id of its owner's row. JPA models that with
+ * {@code @ManyToOne} ("MANY vehicles can point to ONE person"). Instead of
+ * juggling a raw id ourselves, we can now just call {@code vehicle.getOwner()}
+ * and JPA fetches the whole Person for us. This is how relational databases
+ * link tables together.
  */
+@Entity
+@Table(name = "vehicle")
 public class Vehicle {
 
-    /** System-assigned unique id, e.g. "V-1". */
-    private final String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     /**
-     * Vehicle Identification Number - the real-world unique code stamped on
-     * every vehicle. We treat it as unique across the whole registry.
+     * The real-world Vehicle Identification Number. @Column(unique = true) asks
+     * the database to REFUSE two vehicles with the same VIN - a safety net
+     * enforced by the database itself, on top of our own check in the service.
      */
-    private final String vin;
+    @Column(unique = true, nullable = false)
+    private String vin;
 
-    private final String make;   // manufacturer, e.g. "Toyota"
-    private final String model;  // model name, e.g. "Corolla"
-    private final int year;      // model year, e.g. 2020
-    private final VehicleType type;
+    private String make;
+    private String model;
+    private int year;
 
-    // This one is NOT final: ownership can CHANGE when a vehicle is sold/
-    // transferred. So we allow it to be updated (through a controlled method).
-    private String ownerId;
+    /**
+     * Store the enum as readable TEXT ("CAR") in the database instead of a
+     * number. @Enumerated(STRING) makes the data human-readable and safe to
+     * reorder later. Without it, JPA would store 0/1/2 and reordering the enum
+     * would silently corrupt meaning.
+     */
+    @Enumerated(EnumType.STRING)
+    private VehicleType type;
 
-    public Vehicle(String id, String vin, String make, String model, int year,
-                   VehicleType type, String ownerId) {
-        this.id = Objects.requireNonNull(id, "id is required");
+    /**
+     * The owner relationship. @JoinColumn names the foreign-key column that
+     * holds the owner's id in the vehicle table.
+     */
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Person owner;
+
+    protected Vehicle() {
+    }
+
+    public Vehicle(String vin, String make, String model, int year,
+                   VehicleType type, Person owner) {
         this.vin = requireText(vin, "vin");
         this.make = requireText(make, "make");
         this.model = requireText(model, "model");
-        this.type = Objects.requireNonNull(type, "type is required");
-        this.ownerId = Objects.requireNonNull(ownerId, "ownerId is required");
         this.year = year;
+        this.type = Objects.requireNonNull(type, "type is required");
+        this.owner = Objects.requireNonNull(owner, "owner is required");
     }
 
     private static String requireText(String value, String fieldName) {
@@ -52,7 +83,7 @@ public class Vehicle {
 
     // ---- Getters ---------------------------------------------------------
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -76,21 +107,18 @@ public class Vehicle {
         return type;
     }
 
-    public String getOwnerId() {
-        return ownerId;
+    public Person getOwner() {
+        return owner;
     }
 
     // ---- Controlled change: transfer ownership ---------------------------
-    // We expose ONE narrow method to change the owner rather than a generic
-    // "setOwnerId". This makes the intent obvious in the code that calls it and
-    // gives us a single place to guard the value.
-    public void transferTo(String newOwnerId) {
-        this.ownerId = Objects.requireNonNull(newOwnerId, "newOwnerId is required");
+    public void transferTo(Person newOwner) {
+        this.owner = Objects.requireNonNull(newOwner, "newOwner is required");
     }
 
     @Override
     public String toString() {
         return "Vehicle{" + id + ", " + year + " " + make + " " + model
-                + " (" + type + "), VIN " + vin + ", owner " + ownerId + "}";
+                + " (" + type + "), VIN " + vin + "}";
     }
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--
+  index.html  -  the DASHBOARD (home page at http://localhost:8080/).
+  The controller's dashboard() method filled the model with the three counts
+  that this page displays.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Pull in the shared <head>, passing this page's title. -->
+<head th:replace="~{fragments :: head('Dashboard')}"></head>
+
+<body>
+<!-- Pull in the shared navigation bar. -->
+<nav th:replace="~{fragments :: nav}"></nav>
+
+<main class="container">
+    <!-- Pull in the flash-message banners (if any). -->
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>Vehicle &amp; Driver Registry</h1>
+    <p class="subtitle">A government-style web portal backed by a live database.</p>
+
+    <!-- Three summary cards. Each ${...} value came from the controller. -->
+    <div class="cards">
+        <a class="card" th:href="@{/people}">
+            <div class="card-number" th:text="${peopleCount}">0</div>
+            <div class="card-label">People</div>
+        </a>
+        <a class="card" th:href="@{/vehicles}">
+            <div class="card-number" th:text="${vehicleCount}">0</div>
+            <div class="card-label">Vehicles</div>
+        </a>
+        <a class="card" th:href="@{/licenses}">
+            <div class="card-number" th:text="${licenseCount}">0</div>
+            <div class="card-label">Licenses</div>
+        </a>
+    </div>
+
+    <section class="panel">
+        <h2>What is this?</h2>
+        <p>
+            This portal lets DMV staff register people, register their vehicles,
+            transfer ownership, and issue driver licenses. Every action goes
+            through business rules (age limits, unique VINs) and is stored in a
+            real SQL database running inside the app.
+        </p>
+        <p>
+            Curious what the database looks like? Open the
+            <a th:href="@{/h2-console}" target="_blank">DB console</a>
+            (JDBC URL <code>jdbc:h2:mem:dmv</code>, user <code>sa</code>, no
+            password) to browse the tables Hibernate created from our Java
+            classes.
+        </p>
+    </section>
+</main>
+</body>
+</html>

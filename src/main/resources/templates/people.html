@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+  people.html  -  list all people and register a new one.
+  The controller put the list of people in the model under "people".
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments :: head('People')}"></head>
+
+<body>
+<nav th:replace="~{fragments :: nav}"></nav>
+
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>People</h1>
+
+    <!-- ============ THE TABLE OF EXISTING PEOPLE ============ -->
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Date of birth</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- th:each loops once per person in ${people}, creating one row each.
+             ${person.id} calls person.getId(), etc. -->
+        <tr th:each="person : ${people}">
+            <td th:text="${person.id}">1</td>
+            <td th:text="${person.fullName}">Jane Doe</td>
+            <td th:text="${person.dateOfBirth}">1990-01-01</td>
+        </tr>
+        <!-- Shown only when the list is empty. -->
+        <tr th:if="${people.isEmpty()}">
+            <td colspan="3" class="empty">No people yet - add one below.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- ============ THE "ADD A PERSON" FORM ============ -->
+    <section class="panel">
+        <h2>Register a person</h2>
+        <!-- method="post" + this action submits to the controller's addPerson().
+             The 'name' of each input becomes the @RequestParam name in Java. -->
+        <form method="post" th:action="@{/people}" class="form-grid">
+            <label>First name
+                <input type="text" name="firstName" required>
+            </label>
+            <label>Last name
+                <input type="text" name="lastName" required>
+            </label>
+            <label>Date of birth
+                <!-- type="date" gives the browser's date picker; it sends
+                     YYYY-MM-DD, which the controller parses into a LocalDate. -->
+                <input type="date" name="dateOfBirth" required>
+            </label>
+            <button type="submit">Register person</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>
