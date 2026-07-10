@@ -20,12 +20,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- ------------------------------------------------------------------ -->
+    <!-- ================================================================== -->
     <!-- PARENT: we inherit from Spring Boot's "starter parent". This one    -->
     <!-- line gives us sensible, TESTED versions for dozens of libraries so  -->
     <!-- we don't have to pick version numbers ourselves. Below, most        -->
     <!-- dependencies have no <version> - they are supplied by this parent.  -->
-    <!-- ------------------------------------------------------------------ -->
+    <!-- ================================================================== -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -48,11 +48,11 @@
         <java.version>21</java.version>
     </properties>
 
-    <!-- ------------------------------------------------------------------ -->
+    <!-- ================================================================== -->
     <!-- DEPENDENCIES: the libraries our app needs. "starters" are curated   -->
     <!-- bundles - e.g. 'starter-web' pulls in the web server, JSON support, -->
     <!-- and everything else needed to serve web requests, in one line.      -->
-    <!-- ------------------------------------------------------------------ -->
+    <!-- ================================================================== -->
     <dependencies>
 
         <!-- Web layer: controllers, the embedded Tomcat server, HTTP. -->
