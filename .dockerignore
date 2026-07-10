@@ -1,0 +1,8 @@
+# Files NOT to copy into the Docker build context (keeps builds fast & clean).
+target/
+.git/
+.github/
+.claude/
+.idea/
+*.iml
+README.md
